@@ -1,12 +1,12 @@
 server {
     listen       80;
     server_name  *.lme.pw *.gm100861.com;
-    root /data/lme.pw/;
+    root /var/www/html/lme.pw/;
     index index.html index.htm index.php;
 
     server_name_in_redirect off;
-    access_log  /data/logs/lme.log  main;
-    error_log  /data/logs/error.log;
+    access_log  /var/logs/lme.log  main;
+    error_log  /var/logs/error.log;
     error_page 404 404.html;
     add_header Content-Length: $content_length;
     client_max_body_size 64M;
@@ -30,8 +30,8 @@ server {
         location ~* /vnstat-php/ {
                 root /data/;
                 index index.php;
-                access_log /data/logs/vnstat.log main;
-                error_log  /data/logs/vnerr.log;
+                access_log /var/logs/vnstat.log main;
+                error_log  /var/logs/vnerr.log;
      }
 
     location ~ \.php$ {
