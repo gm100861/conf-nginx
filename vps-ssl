@@ -1,0 +1,77 @@
+server {
+    listen       80;
+    server_name  *.lme.pw *.gm100861.com;
+    return 301 https://$host$request_uri;
+
+
+#       if ( $host != 'www.gm100861.com' ) {
+#               rewrite ^/(.*)$ http://www.gm100861.com/$1 permanent;
+#     }
+
+
+#    location ~* .*\.(gif|png|bmp|jpg|jpeg)$ {
+#       valid_referers none server_names *.gm100861.com *.lme.pw *.mingdao.com;
+#               if ($invalid_referer) {
+#                       return 403;
+#               }
+#}
+}
+
+server {
+        listen 443 ssl;
+        server_name gm100861.com;
+        ssl_certificate /etc/nginx/conf.d/ssl/gm100861.pem;
+        ssl_certificate_key /etc/nginx/conf.d/ssl/gm100861.key;
+
+    root /data/lme.pw/;
+    index index.html index.htm index.php;
+
+    server_name_in_redirect off;
+    access_log  /data/logs/lme.log  main;
+    error_log  /data/logs/error.log;
+    error_page 404 404.html;
+    add_header Content-Length: $content_length;
+    client_max_body_size 64M;
+
+    limit_rate_after 2m;
+    limit_rate 512k;
+
+        if (-d $request_filename){
+                rewrite ^/(.*)([^/])$ http://$host/$1$2/ permanent;
+        }
+
+        if (-f $request_filename/index.html){
+                rewrite (.*) $1/index.html break;
+       }
+        if (-f $request_filename/index.php){
+                rewrite (.*) $1/index.php;
+        }
+        if (!-f $request_filename){
+                rewrite (.*) /index.php;
+        }
+        location ~* /vnstat-php/ {
+                root /data/;
+                index index.php;
+                access_log /data/logs/vnstat.log main;
+                error_log  /data/logs/vnerr.log;
+     }
+
+    location ~ \.php$ {
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        include        fastcgi_params;
+        fastcgi_read_timeout 300;
+        fastcgi_connect_timeout 600;
+        fastcgi_buffer_size 256k;
+        fastcgi_buffers 16 256k;
+        fastcgi_busy_buffers_size 512k;
+        fastcgi_temp_file_write_size 512k;
+    }
+    location ~ \.flv$ {
+        flv;
+    }
+    location ~ \.mp4$ {
+        mp4;
+    }
+}
